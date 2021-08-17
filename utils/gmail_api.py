@@ -30,7 +30,7 @@ def initGMAIL():
     # created automatically when the authorization flow completes for the first
     # time.
     if os.path.exists("utils/token.pickle"):
-        with open("utils/token.pickle", "rb") as token:
+        with open("./utils/token.pickle", "rb") as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:

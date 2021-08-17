@@ -1,5 +1,4 @@
 from django.db.models import Sum
-import pandas as pd
 import os, base64
 import urllib.parse as uri
 from datetime import date, datetime as dt

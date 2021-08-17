@@ -14,6 +14,8 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import datetime
 from pathlib import Path
 import os
+import django_heroku
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,11 +28,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 with open(os.path.join(BASE_DIR, "etc/secret.key")) as f:
     SECRET_KEY = f.read().strip()
 
+SECRET_KEY = os.environ.get("SECRET_KEY", SECRET_KEY)
+
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4"]
 
+ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS_LIST')
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(","))
 
 # Application definition
 
@@ -54,7 +61,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
+     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -99,17 +106,17 @@ WSGI_APPLICATION = "invoicegen_backend.wsgi.application"
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    "postgres": {
+    "old": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "mydatabase",
-        "USER": "postgres",
-        "PASSWORD": "Sptiwari_46289",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.environ.get('DBNAME', 'mydatabase'),
+        "USER": os.environ.get('DBUSERNAME', "postgres"),
+        "PASSWORD": os.environ.get('DBPASSWORD',"Sptiwari_46289"),
+        "HOST": os.environ.get('DBHOST',"localhost"),
+        "PORT": os.environ.get('DBPORT', "5432"),
     },
 }
 
@@ -153,15 +160,17 @@ DATETIME_INPUT_FORMAT = "%x, %X %p"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') if not DEBUG else "/static"
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
 # Base url to serve media files
 MEDIA_URL = "/media/"
+MEDIA_ROOT = "/vol/web/media" if not DEBUG else "/media"
 
-# Path where media is stored
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+
+
 CORS_ORIGIN_ALLOW_ALL = True
 # CORS WHITELIST
 # CORS_ALLOWED_ORIGINS = [
@@ -176,3 +185,8 @@ JWT_AUTH = {
     "JWT_REFRESH_EXPIRATION_DELTA": datetime.timedelta(days=6),
     "JWT_RESPONSE_PAYLOAD_HANDLER": "api.views.jwt_response_payload_handler",
 }
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
+
+# command: ["./wait-for-it.sh", "db:5432", "--", "./start.sh"]
