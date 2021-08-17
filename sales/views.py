@@ -2,6 +2,7 @@ from rest_framework.pagination import PageNumberPagination
 from api.views import *
 from sales.serializers import *
 from account.models import *
+from account.serializers import CustomerSerializer
 
 paginator = PageNumberPagination()
 paginator.page_size = 15
@@ -10,13 +11,17 @@ paginator.page_size = 15
 class PaymentView(APIView):
     def get(self, request):
         data = request.query_params
-        customerID = data.get("customerID")
-        customer = Customer.objects.get(id=customerID)
+        cid = data.get("id")
+        customerId = data.get("customerId")
+        if cid:
+            customer = Customer.objects.get(id=cid)
+        if customerId:
+            customer = Customer.objects.get(customerId=customerId)
         out = []
         if customer:
             customerpayments = CustomerPayment.objects.filter(customer=customer)
             if len(customerpayments) != 0:
-                customerpayments = customerpayments.order_by("-payment__updatedOn")
+                customerpayments = customerpayments.order_by("payment__paymentDate")
                 payments = [cp.payment for cp in customerpayments]
                 for e in PaymentSerializer(payments, many=True).data:
                     e["customer"] = CustomerSerializer(customer).data
@@ -186,8 +191,6 @@ class SaleOrderViewSet(APIView):
                         customer=Customer.objects.filter(customerId=so.customerId)[0],
                     )
                     cuso.save()
-                    os = Outstanding()
-                    incrementCountFor("SALEORDER")
                     return Response(data=out, status=201)
                 else:
                     return Response(
@@ -199,7 +202,6 @@ class SaleOrderViewSet(APIView):
                     )
             except Exception as e:
                 so.delete()
-                print(e.__str__(), e.__repr__())
                 return Response(
                     data={
                         "message": e.__str__(),
@@ -229,6 +231,7 @@ class InvoiceViewSet(APIView):
     def get(self, request):
         out = []
         id = request.query_params.get("invoiceId")
+        customerId = request.query_params.get("customerId")
         if id:
             inv = Invoice.objects.filter(invoiceId=id)
             if inv.count() > 0:
@@ -236,12 +239,18 @@ class InvoiceViewSet(APIView):
                 return Response(data=out, status=201)
             else:
                 return Response(status=404)
+        elif customerId:
+            result_page = paginator.paginate_queryset(
+                Invoice.objects.filter(customerId=customerId).order_by("createdOn"),
+                request,
+            )
+            serializer = InvoiceSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
         else:
             result_page = paginator.paginate_queryset(
                 Invoice.objects.all().order_by("-createdOn"), request
             )
             serializer = InvoiceSerializer(result_page, many=True)
-            # return Response(data=out, status=201)
             return paginator.get_paginated_response(serializer.data)
 
     def post(self, request):
@@ -312,7 +321,6 @@ class InvoiceViewSet(APIView):
                 customer=Customer.objects.filter(customerId=inv.customerId)[0],
             )
             cuinv.save()
-            incrementCountFor("INVOICE")
             return Response(data=out, status=201)
         else:
             return Response(data=serialized.errors, status=201)
@@ -348,7 +356,6 @@ class OutstandingViewSet(APIView):
     def get(self, request, id=None):
         out = []
         cid = request.query_params.get("customer") or None
-
         if id:
             res = Outstanding.objects.filter(id=id)
             if cid:
@@ -363,7 +370,6 @@ class OutstandingViewSet(APIView):
             res = Outstanding.objects.filter(customer__id=cid)
             customer = Customer.objects.get(id=cid)
             if res.count() > 0:
-                print(res)
                 res = res[0]
                 recalc = request.query_params.get("recalculate") or False
                 if recalc == "true":
@@ -373,9 +379,12 @@ class OutstandingViewSet(APIView):
                     ).aggregate(Sum("invoice__invoiceAmountWithTax"))[
                         "invoice__invoiceAmountWithTax__sum"
                     ]
-                    paidAmount = customer.customerpayment_set.all().aggregate(
-                        Sum("payment__amount")
-                    )["payment__amount__sum"]
+                    paidAmount = (
+                        customer.customerpayment_set.all().aggregate(
+                            Sum("payment__amount")
+                        )["payment__amount__sum"]
+                        or 0
+                    )
                     res.dueAmount = dueAmount - paidAmount
                     res.totalBusinessAmount = paidAmount
                     res.save()

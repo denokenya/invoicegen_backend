@@ -25,9 +25,16 @@ class PlantSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    user_permissions = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         exclude = ("password",)
+
+    def get_user_permissions(self, obj):
+        return [
+            {"value": e.id, "label": e.__str__()} for e in obj.user_permissions.all()
+        ]
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -130,21 +137,33 @@ class EmployeeTypeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class EmployeeSerializer(serializers.ModelSerializer):
+class EmployeeSerializer(UserSerializer):
     addresses = serializers.SerializerMethodField()
 
     def get_addresses(self, obj):
         if obj.employeeaddress_set.count() > 0:
-            return AddressSerializer(obj.employeeaddress_set.all(), many=True).data
+            return [
+                AddressSerializer(e.address).data for e in obj.employeeaddress_set.all()
+            ]
         else:
-            return {}
+            return []
 
     class Meta:
         model = Employee
         fields = "__all__"
 
 
-class DriverSerializer(EmployeeSerializer):
+class DriverSerializer(serializers.ModelSerializer):
+    addresses = serializers.SerializerMethodField()
+
+    def get_addresses(self, obj):
+        if obj.driveraddress_set.count() > 0:
+            return [
+                AddressSerializer(e.address).data for e in obj.driveraddress_set.all()
+            ]
+        else:
+            return []
+
     class Meta:
         model = Driver
         fields = "__all__"
@@ -203,4 +222,22 @@ class CompanySettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CompanySetting
+        fields = "__all__"
+
+
+class UserConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserConfig
+        fields = "__all__"
+
+
+class DriverAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DriverAddress
+        fields = "__all__"
+
+
+class EmployeeAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmployeeAddress
         fields = "__all__"

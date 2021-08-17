@@ -2,6 +2,14 @@ from api.views import *
 from account.models import *
 from account.serializers import *
 
+from rest_framework.pagination import PageNumberPagination
+
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 100
+    page_size_query_param = "page_size"
+    max_page_size = 1000
+
 
 class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsAdminUser]
@@ -194,13 +202,25 @@ class DepartmentViewSet(viewsets.ModelViewSet):
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
+    pagination_class = StandardResultsSetPagination
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
 
 class DriverViewSet(viewsets.ModelViewSet):
+    pagination_class = StandardResultsSetPagination
     queryset = Driver.objects.all()
     serializer_class = DriverSerializer
+
+
+class DriverAddressViewSet(viewsets.ModelViewSet):
+    queryset = DriverAddress.objects.all()
+    serializer_class = DriverAddressSerializer
+
+
+class EmployeeAddressViewSet(viewsets.ModelViewSet):
+    queryset = EmployeeAddress.objects.all()
+    serializer_class = EmployeeAddressSerializer
 
 
 class VehicleViewSet(viewsets.ModelViewSet):
@@ -216,3 +236,28 @@ class EmailTemplateViewSet(viewsets.ModelViewSet):
 class TermAndConditionViewSet(viewsets.ModelViewSet):
     queryset = TermAndCondition.objects.all()
     serializer_class = TermAndConditionSerializer
+
+
+# UserConfig
+
+
+class UserConfigViewSet(viewsets.ModelViewSet):
+    queryset = UserConfig.objects.all()
+    serializer_class = UserConfigSerializer
+
+
+# class UserConfigViewSet(APIView):
+#     def get(self, request, **kwargs):
+#         out = []
+#         userId = request.query_params.get("id")
+#         user = User.objects.filter(id=userId)[0] or False
+#         if user:
+#             user = user[0]
+#             out = UserConfigSerializer(user.userconfig_set.all()[0]).data
+#         return Response(data=out, status=201)
+
+#     def post(self, request, **kwargs):
+#         out = []
+#         data = request.data
+#         userConfig = UserConfig(*data)
+#         print(UserConfigSerializer(userConfig).data)

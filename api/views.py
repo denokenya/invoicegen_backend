@@ -22,6 +22,8 @@ from api.gen import (
 )
 from account.serializers import UserSerializer
 from account.models import Ids
+from sales.models import Invoice, Payment, SaleOrder
+from sales.serializers import InvoiceSerializer, PaymentSerializer, SaleOrderSerializer
 
 helper = lambda x: [print(e) for e in dir(x)]
 EXR = {
@@ -67,6 +69,23 @@ def sendMail(request):
         sentmsg = send_message("me", msg)
     os.remove(tfn)
     return Response(data=sentmsg, status=201)
+
+
+@api_view(["GET"])
+def getLastFive(request):
+    modelMap = {"INVOICE": Invoice, "SALEORDER": SaleOrder, "PAYMENT": Payment}
+    serializerMap = {
+        "INVOICE": InvoiceSerializer,
+        "SALEORDER": SaleOrderSerializer,
+        "PAYMENT": PaymentSerializer,
+    }
+    what = request.query_params.get("what")
+    return Response(
+        status=200,
+        data=serializerMap[what](
+            data=modelMap[what].objects.order_by("-createdOn")[:5], many=True
+        ).data,
+    )
 
 
 @api_view(["GET"])

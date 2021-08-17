@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from datetime import datetime, date
 from django.db.models import Count
 from sales.models import Invoice, SaleOrder
-from account.models import Address, Customer, Driver, Ids, Vendor
+from account.models import *
 from production.models import Product
 from stock.models import RawMaterial
 from sales.serializers import InvoiceSerializer, SaleOrderSerializer
@@ -12,6 +12,7 @@ from account.serializers import (
     AddressSerializer,
     CustomerSerializer,
     DriverSerializer,
+    EmployeeSerializer,
     VendorSerializer,
 )
 from production.serializers import ProductSerializer
@@ -44,6 +45,7 @@ ModelMapping = {
     "ADDRESS": Address,
     "PRODUCT": Product,
     "RAWMATERIAL": RawMaterial,
+    "EMPLOYEE": Employee,
     "DRIVER": Driver,
     "VENDOR": Vendor,
 }
@@ -54,6 +56,7 @@ SerializerMap = {
     "CUSTOMER": CustomerSerializer,
     "ADDRESS": AddressSerializer,
     "PRODUCT": ProductSerializer,
+    "EMPLOYEE": EmployeeSerializer,
     "RAWMATERIAL": RawMaterialSerializer,
     "DRIVER": DriverSerializer,
     "VENDOR": VendorSerializer,
@@ -65,8 +68,10 @@ KeyName = {
     "CUSTOMER": "customerId",
     "ADDRESS": "code",
     "PRODUCT": "code",
+    "EMPLOYEE": "code",
     "RAWMATERIAL": "code",
     "DRIVER": "code",
+    "VENDOR": "code",
 }
 
 
@@ -136,7 +141,13 @@ def genWithName(name, id=None, update=False, reset=False):
         total_so = formatint(1, leading_zeros_count=5 if name == "INVOICE" else 4)
     else:
         last = model.objects.last()
-        if last.createdOn and last.createdOn.month == month:
+        if name == "EMPLOYEE":
+            total_so = model.objects.count()
+            total_so = formatint(
+                (total_so if total_so == masks[0].count else masks[0].count) + 1,
+                leading_zeros_count=4,
+            )
+        elif last.createdOn and last.createdOn.month == month:
             total_so = model.objects.values(KeyName[name]).last()[KeyName[name]][-4:]
             total_so = formatint(int(total_so) + 1, leading_zeros_count=4)
         else:

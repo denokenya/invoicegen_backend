@@ -12,19 +12,26 @@ from rest_framework_jwt.views import (
     verify_jwt_token,
     refresh_jwt_token,
 )
+from account.models import Department
 
 
 router = routers.DefaultRouter()
-router.register(r"user", UserViewSet, basename="user")
-router.register(r"company", CompanyViewSet, basename="company")
-router.register(r"plant", PlantViewSet, basename="plant")
-router.register(r"stock", StockViewSet, basename="stock")
-router.register(r"rawmaterial", RawMaterialViewSet, basename="rawmaterial")
+router.register(r"users", UserViewSet, basename="user")
+router.register(r"userconfigs", UserConfigViewSet, basename="userconfig")
+router.register(r"companys", CompanyViewSet, basename="company")
+router.register(r"plants", PlantViewSet, basename="plant")
+router.register(r"departments", DepartmentViewSet, basename="department")
+router.register(r"stocks", StockViewSet, basename="stock")
+router.register(r"rawmaterials", RawMaterialViewSet, basename="rawmaterial")
 router.register(
-    r"rawmaterialentry", RawMaterialEntryViewSet, basename="rawmaterialentry"
+    r"rawmaterialentrys", RawMaterialEntryViewSet, basename="rawmaterialentry"
 )
 router.register(r"employees", EmployeeViewSet, basename="employee")
+router.register(
+    r"employeeaddresses", EmployeeAddressViewSet, basename="employeeaddress"
+)
 router.register(r"drivers", DriverViewSet, basename="driver")
+router.register(r"driveraddresses", DriverAddressViewSet, basename="driveraddress")
 router.register(r"vehicles", VehicleViewSet, basename="vehicle")
 router.register(r"customers", CustomerViewSet, basename="customer")
 router.register(
@@ -32,8 +39,8 @@ router.register(
 )
 router.register(r"vendors", VendorViewSet, basename="vendor")
 router.register(r"products", ProductViewSet, basename="product")
-router.register(r"address", AddressViewSet, basename="address")
-router.register(r"usernote", UserNoteViewSet, basename="usernote")
+router.register(r"addresses", AddressViewSet, basename="address")
+router.register(r"usernotes", UserNoteViewSet, basename="usernote")
 router.register(r"taxes", TaxViewSet, basename="taxes")
 router.register(r"companysettings", CompanySettingViewSet, basename="companysetting")
 router.register(r"companyaddresss", CompanyAddressViewSet, basename="companyaddress")
@@ -68,9 +75,11 @@ urlpatterns = [
     path("sendmail/", sendMail),
     # chart api
     path("getgraphdata/", graphData),
+    # last fives
+    path("getlastfive/", getLastFive),
     # api auth
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api-token-auth/", obtain_jwt_token),
     path("api-token-verify/", verify_jwt_token),
-    path("api-token-refresh//", refresh_jwt_token),
+    path("api-token-refresh/", refresh_jwt_token),
 ]

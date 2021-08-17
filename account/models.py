@@ -85,7 +85,7 @@ class Plant(models.Model):
 
 class Department(Group):
     plant = models.ForeignKey(Plant, null=True, blank=True, on_delete=models.SET_NULL)
-    total = models.IntegerField()
+    total = models.IntegerField(null=True, blank=True)
 
 
 class EmployeeType(models.Model):
@@ -115,14 +115,31 @@ class EmployeeAddress(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
 
-class Driver(Employee):
+class Driver(models.Model):
+    department = models.ForeignKey(
+        Department, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    dp = models.URLField(default="", max_length=1000, null=True, blank=True)
+    name = models.CharField(default="", max_length=100, blank=True, null=True)
+    dob = models.DateField(
+        default="", auto_now=False, auto_now_add=False, null=True, blank=True
+    )
     dlNo = models.CharField(
         default="", max_length=128, unique=True, blank=True, null=True
     )
     remark = models.TextField(default="", max_length=200, blank=True, null=True)
+    createdBy = models.EmailField(blank=True)
+    createdOn = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    modifiedBy = models.EmailField(blank=True)
+    modifiedOn = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name
+        return self.name
+
+
+class DriverAddress(models.Model):
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE)
 
 
 class Vehicle(models.Model):
@@ -235,3 +252,9 @@ class TermAndCondition(models.Model):
     tc = models.TextField(max_length=2000, default="", blank=True)
     createdOn = models.DateTimeField(default=today, blank=True, null=True)
     updatedOn = models.DateTimeField(auto_now=True, blank=True, null=True)
+
+
+class UserConfig(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    config = models.TextField()
+    createdOn = models.DateTimeField(default=today, blank=True, null=True)
