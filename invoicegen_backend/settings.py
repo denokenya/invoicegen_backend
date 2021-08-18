@@ -49,12 +49,12 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "api.apps.ApiConfig",
-    # "account.apps.AccountConfig",
-    # "sales.apps.SalesConfig",
-    # "purchase.apps.PurchaseConfig",
-    # "production.apps.ProductionConfig",
-    # "batch.apps.BatchConfig",
-    # "stock.apps.StockConfig",
+    "account.apps.AccountConfig",
+    "sales.apps.SalesConfig",
+    "purchase.apps.PurchaseConfig",
+    "production.apps.ProductionConfig",
+    "batch.apps.BatchConfig",
+    "stock.apps.StockConfig",
 ]
 
 MIDDLEWARE = [
