@@ -29,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "q^_+$%=hlvkr6ctnd*n&btx1=xgqg43lbio_@rs15z(v-7um5*")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.environ.get('DEBUG', 0)))
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4"]
 
@@ -108,15 +108,11 @@ DATABASES = {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     },
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.environ.get('DBNAME', 'mydatabase'),
-        "USER": os.environ.get('DBUSERNAME', "postgres"),
-        "PASSWORD": os.environ.get('DBPASSWORD',"Sptiwari_46289"),
-        "HOST": os.environ.get('DBHOST',"localhost"),
-        "PORT": os.environ.get('DBPORT', "5432"),
-    },
 }
+
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
 
 
 # Password validation
