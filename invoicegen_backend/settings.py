@@ -33,10 +33,6 @@ DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
 ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4", "barambackend.herokuapp.com"]
 
-ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS_LIST')
-if ALLOWED_HOSTS_ENV:
-    ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(","))
-
 # Application definition
 
 INSTALLED_APPS = [
