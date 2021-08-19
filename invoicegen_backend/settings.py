@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "gunicorn"
     "rest_framework",
     "api.apps.ApiConfig",
     "account.apps.AccountConfig",
