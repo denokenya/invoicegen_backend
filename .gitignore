@@ -17,6 +17,7 @@ credentials.json
 build/
 develop-eggs/
 dist/
+staticfiles/
 downloads/
 eggs/
 .eggs/

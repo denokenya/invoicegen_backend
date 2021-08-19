@@ -3,6 +3,7 @@ from django.db import models
 import uuid
 from api.models import *
 from django.utils import timezone
+from invoicegen_backend.utils import PublicMediaStorage
 
 
 def today():
@@ -13,7 +14,7 @@ class Company(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     user = models.OneToOneField(User, null=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=100, blank=True)
-    logo = models.ImageField(null=True, blank=True, upload_to="logo")
+    logo = models.FileField(null=True, blank=True, storage=PublicMediaStorage())
     email = models.EmailField(max_length=50, blank=True)
     phone = models.CharField(max_length=13, blank=True)
     gstin = models.CharField(max_length=15, blank=True, null=True)

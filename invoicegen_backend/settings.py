@@ -15,7 +15,8 @@ import datetime
 from pathlib import Path
 import os
 import django_heroku
-from invoicegen_backend.settings import AWS_ACCESS_SECRET_KEY
+
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,9 +31,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY", "q^_+$%=hlvkr6ctnd*n&btx1=xgqg43lbio_@rs15z(v-7um5*")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.environ.get('DEBUG', 0)))
+DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
-ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4", "barambackend.herokuapp.com"]
+ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4", "barambackend.herokuapp.com"]
 
 # Application definition
 
@@ -43,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'storages',
     "corsheaders",
     "gunicorn",
     "rest_framework",
@@ -64,7 +67,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    # "whitenoise.middleware.WhiteNoiseMiddleware",
     "api.middleware.TimezoneMiddleware",
 ]
 
@@ -152,17 +155,53 @@ DATETIME_FORMAT = "IST"
 
 DATETIME_INPUT_FORMAT = "%x, %X %p"
 
+# AWS S3 BUCKET CONFIG
+
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'idk')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_ACCESS_SECRET_KEY', 'idk')
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "idk")
+AWS_PRELOAD_METADATA = True
+AWS_QUERYSTRING_AUTH = True
+AWS_S3_REGION_NAME = 'ap-south-1'
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = True
+AWS_DEFAULT_ACL = "public-read"
+
+# PREV
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
+
+# DEFAULT_FILE_STORAGE = 'utils.MediaRootS3BotoStorage'
+# STATICFILES_STORAGE = 'utils.StaticRootS3BotoStorage'
+
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-STATIC_URL = "/static/"
+USE_S3 = os.getenv('USE_S3') == 'TRUE'
 
-STATICFILES_DIRS = ("staticfiles",)
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+if USE_S3:
+    # aws settings
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+    # s3 static settings
+    STATIC_LOCATION = 'static'
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATIC_ROOT = f'https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/'
+    STATICFILES_STORAGE = 'invoicegen_backend.utils.StaticStorage'
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    MEDIA_ROOT = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'invoicegen_backend.utils.PublicMediaStorage'
+    
+else:
+    STATIC_URL = '/static/'
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Base url to serve media files
-MEDIA_URL = "/media/"
-MEDIA_ROOT = "/media"
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'staticfiles'),)
 
+
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -181,18 +220,5 @@ JWT_AUTH = {
 }
 
 # Activate Django-Heroku.
-django_heroku.settings(locals())
+django_heroku.settings(locals(), staticfiles=False)
 
-
-
-# AWS S3 BUCKET CONFIG
-
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'idk')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_ACCESS_SECRET_KEY', 'idk')
-AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "idk")
-
-AWS_S3_FILE_OVERWRITE = True
-AWS_DEFAULT_ACL = None
-
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
