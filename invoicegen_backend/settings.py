@@ -31,7 +31,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY", "q^_+$%=hlvkr6ctnd*n&btx1=xgqg43lbio_@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 
-ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4"]
+ALLOWED_HOSTS = ["localhost", "app://", "msi", "192.168.1.4", "barambackend.herokuapp.com"]
 
 ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS_LIST')
 if ALLOWED_HOSTS_ENV:
