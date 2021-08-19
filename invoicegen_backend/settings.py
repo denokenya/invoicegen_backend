@@ -15,6 +15,7 @@ import datetime
 from pathlib import Path
 import os
 import django_heroku
+from invoicegen_backend.settings import AWS_ACCESS_SECRET_KEY
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -154,14 +155,13 @@ DATETIME_INPUT_FORMAT = "%x, %X %p"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') if not DEBUG else "/static"
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATICFILES_DIRS = ("staticfiles",)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Base url to serve media files
 MEDIA_URL = "/media/"
-MEDIA_ROOT = "/vol/web/media" if not DEBUG else "/media"
+MEDIA_ROOT = "/media"
 
 
 
@@ -183,4 +183,16 @@ JWT_AUTH = {
 # Activate Django-Heroku.
 django_heroku.settings(locals())
 
-# command: ["./wait-for-it.sh", "db:5432", "--", "./start.sh"]
+
+
+# AWS S3 BUCKET CONFIG
+
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID', 'idk')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_ACCESS_SECRET_KEY', 'idk')
+AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME", "idk")
+
+AWS_S3_FILE_OVERWRITE = True
+AWS_DEFAULT_ACL = None
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+# STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage'
