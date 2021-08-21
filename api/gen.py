@@ -127,67 +127,66 @@ def invoice_no_gen():
 
 
 def genWithName(name, id=None, update=False, reset=False):
-    pass
-    # today, year, month = getTodayYearMonth()
-    # model = ModelMapping[name]
-    # ids = []
-    # masks = Ids.objects.filter(name=name)
-    # if model.objects.count() == 0:
-    #     total_so = formatint(1, leading_zeros_count=5 if name == "INVOICE" else 4)
-    # else:
-    #     last = model.objects.last()
-    #     if name == "EMPLOYEE":
-    #         total_so = model.objects.count()
-    #         total_so = formatint(
-    #             (total_so if total_so == masks[0].count else masks[0].count) + 1,
-    #             leading_zeros_count=4,
-    #         )
-    #     elif last.createdOn and last.createdOn.month == month:
-    #         total_so = model.objects.values(KeyName[name]).last()[KeyName[name]][-4:]
-    #         total_so = formatint(int(total_so) + 1, leading_zeros_count=4)
-    #     else:
-    #         if name == "PRODUCT":
-    #             total_so = formatint(model.objects.count() + 1, leading_zeros_count=4)
-    #         elif name == "INVOICE":
-    #             total_so = formatint(masks[0].count + 1, leading_zeros_count=5)
-    #         else:
-    #             thismonthlength = len(model.objects.filter(createdOn__month=month))
-    #             total_so = formatint(
-    #                 (
-    #                     thismonthlength
-    #                     if thismonthlength == masks[0].count
-    #                     else masks[0].count
-    #                 )
-    #                 + 1,
-    #                 leading_zeros_count=4,
-    #             )
-    # for mask in masks:
-    #     filler = {
-    #         "year": year,
-    #         "month": month,
-    #         "count": total_so,
-    #         "prefix": mask.prefix,
-    #     }
-    #     current = handleMask(mask.mask, mask.sep, filler)
-    #     mask.current = current
-    #     filler["count"] = formatint(
-    #         int(filler["count"]) + 1, 5 if name == "INVOICE" else 4
-    #     )
-    #     upnext = handleMask(mask.mask, mask.sep, filler)
-    #     mask.upnext = upnext
-    #     mask.save()
-    #     ids.append([current, upnext])
-    # if update == False:
-    #     return ids
+    today, year, month = getTodayYearMonth()
+    model = ModelMapping[name]
+    ids = []
+    masks = Ids.objects.filter(name=name)
+    if model.objects.count() == 0:
+        total_so = formatint(1, leading_zeros_count=5 if name == "INVOICE" else 4)
+    else:
+        last = model.objects.last()
+        if name == "EMPLOYEE":
+            total_so = model.objects.count()
+            total_so = formatint(
+                (total_so if total_so == masks[0].count else masks[0].count) + 1,
+                leading_zeros_count=4,
+            )
+        elif last.createdOn and last.createdOn.month == month:
+            total_so = model.objects.values(KeyName[name]).last()[KeyName[name]][-4:]
+            total_so = formatint(int(total_so) + 1, leading_zeros_count=4)
+        else:
+            if name == "PRODUCT":
+                total_so = formatint(model.objects.count() + 1, leading_zeros_count=4)
+            elif name == "INVOICE":
+                total_so = formatint(masks[0].count + 1, leading_zeros_count=5)
+            else:
+                thismonthlength = len(model.objects.filter(createdOn__month=month))
+                total_so = formatint(
+                    (
+                        thismonthlength
+                        if thismonthlength == masks[0].count
+                        else masks[0].count
+                    )
+                    + 1,
+                    leading_zeros_count=4,
+                )
+    for mask in masks:
+        filler = {
+            "year": year,
+            "month": month,
+            "count": total_so,
+            "prefix": mask.prefix,
+        }
+        current = handleMask(mask.mask, mask.sep, filler)
+        mask.current = current
+        filler["count"] = formatint(
+            int(filler["count"]) + 1, 5 if name == "INVOICE" else 4
+        )
+        upnext = handleMask(mask.mask, mask.sep, filler)
+        mask.upnext = upnext
+        mask.save()
+        ids.append([current, upnext])
+    if update == False:
+        return ids
 
 
 @receiver(post_save)
 def updateWithName(sender, instance, **kwargs):
     name = sender.__name__
-    # modelName = name.upper()
-    # for e in Ids.objects.filter(name=modelName):
-    #     e.count = e.count + 1
-    #     e.save()
+    modelName = name.upper()
+    for e in Ids.objects.filter(name=modelName):
+        e.count = e.count + 1
+        e.save()
 
 
 def recalculateIds():

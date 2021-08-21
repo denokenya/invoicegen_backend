@@ -8,6 +8,7 @@ __pycache__/
 # *.pickle
 *.key
 *.log
+*.bat
 *.code-workspace
 credentials.json
 

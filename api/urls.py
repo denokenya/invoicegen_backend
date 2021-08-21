@@ -12,7 +12,6 @@ from rest_framework_jwt.views import (
     verify_jwt_token,
     refresh_jwt_token,
 )
-from account.models import Department
 
 
 router = routers.DefaultRouter()

@@ -120,14 +120,14 @@ class TaxSerializer(serializers.ModelSerializer):
 
 
 class UserNoteSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta: 
         model = UserNote
         fields = "__all__"
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Department
+        model = Group
         fields = "__all__"
 
 

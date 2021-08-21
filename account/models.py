@@ -84,11 +84,6 @@ class Plant(models.Model):
         return f"{self.id} | {self.address.address.city}"
 
 
-class Department(Group):
-    plant = models.ForeignKey(Plant, null=True, blank=True, on_delete=models.SET_NULL)
-    total = models.IntegerField(null=True, blank=True)
-
-
 class EmployeeType(models.Model):
     plant = models.ForeignKey(Plant, null=True, blank=True, on_delete=models.SET_NULL)
     name = models.CharField(max_length=100, blank=False, null=False)
@@ -104,7 +99,7 @@ class Employee(User):
         EmployeeType, null=True, blank=True, on_delete=models.SET_NULL
     )
     department = models.ForeignKey(
-        Department, null=True, blank=True, on_delete=models.SET_NULL
+        Group, null=True, blank=True, on_delete=models.SET_NULL
     )
 
     def __str__(self):
@@ -118,7 +113,7 @@ class EmployeeAddress(models.Model):
 
 class Driver(models.Model):
     department = models.ForeignKey(
-        Department, on_delete=models.SET_NULL, null=True, blank=True
+        Group, on_delete=models.SET_NULL, null=True, blank=True
     )
     dp = models.URLField(default="", max_length=1000, null=True, blank=True)
     name = models.CharField(default="", max_length=100, blank=True, null=True)

@@ -197,7 +197,7 @@ class TaxViewSet(viewsets.ModelViewSet):
 
 
 class DepartmentViewSet(viewsets.ModelViewSet):
-    queryset = Department.objects.all()
+    queryset = Group.objects.all()
     serializer_class = DepartmentSerializer
 
 
