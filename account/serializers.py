@@ -26,16 +26,10 @@ class PlantSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    user_permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         exclude = ("password",)
-
-    def get_user_permissions(self, obj):
-        return [
-            {"value": e.id, "label": e.__str__()} for e in obj.user_permissions.all()
-        ]
 
 
 class CompanySerializer(serializers.ModelSerializer):
