@@ -39,8 +39,8 @@ ModelMapping = {
     "ADDRESS": Address,
     "PRODUCT": Product,
     "RAWMATERIAL": RawMaterial,
-    # "EMPLOYEE": Employee,
-    # "DRIVER": Driver,
+    "EMPLOYEE": Employee,
+    "DRIVER": Driver,
     "VENDOR": Vendor,
 }
 
@@ -50,8 +50,8 @@ SerializerMap = {
     "CUSTOMER": CustomerSerializer,
     "ADDRESS": AddressSerializer,
     "PRODUCT": ProductSerializer,
-    # "EMPLOYEE": EmployeeSerializer,
-    # "DRIVER": DriverSerializer,
+    "EMPLOYEE": EmployeeSerializer,
+    "DRIVER": DriverSerializer,
     "RAWMATERIAL": RawMaterialSerializer,
     "VENDOR": VendorSerializer,
 }
