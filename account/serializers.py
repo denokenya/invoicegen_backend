@@ -1,4 +1,5 @@
 import api.models
+import django.contrib.auth.models
 import django.db
 from rest_framework import serializers
 from account.models import *
@@ -130,6 +131,10 @@ class DepartmentSerializer(serializers.ModelSerializer):
         model = Group
         fields = "__all__"
 
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = "__all__"
 
 class EmployeeTypeSerializer(serializers.ModelSerializer):
     class Meta:

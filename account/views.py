@@ -201,6 +201,11 @@ class DepartmentViewSet(viewsets.ModelViewSet):
     serializer_class = DepartmentSerializer
 
 
+class PermissionViewSet(viewsets.ModelViewSet):
+    queryset = Permission.objects.all()
+    serializer_class = PermissionSerializer
+
+
 class EmployeeViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     queryset = Employee.objects.all()

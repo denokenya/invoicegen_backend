@@ -20,6 +20,7 @@ router.register(r"userconfigs", UserConfigViewSet, basename="userconfig")
 router.register(r"companys", CompanyViewSet, basename="company")
 router.register(r"plants", PlantViewSet, basename="plant")
 router.register(r"departments", DepartmentViewSet, basename="department")
+router.register(r"permissions", PermissionViewSet, basename="permission")
 router.register(r"stocks", StockViewSet, basename="stock")
 router.register(r"rawmaterials", RawMaterialViewSet, basename="rawmaterial")
 router.register(
