@@ -27,6 +27,7 @@ router.register(
     r"rawmaterialentrys", RawMaterialEntryViewSet, basename="rawmaterialentry"
 )
 router.register(r"employees", EmployeeViewSet, basename="employee")
+router.register(r"employeetypes", EmployeeTypeViewSet, basename="employeetype")
 router.register(
     r"employeeaddresses", EmployeeAddressViewSet, basename="employeeaddress"
 )

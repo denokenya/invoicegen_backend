@@ -211,6 +211,10 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
+class EmployeeTypeViewSet(viewsets.ModelViewSet):
+    queryset = EmployeeType.objects.all()
+    serializer_class = EmployeeTypeSerializer
+
 
 class DriverViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
