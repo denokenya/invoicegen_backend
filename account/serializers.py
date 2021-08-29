@@ -26,7 +26,6 @@ class PlantSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         exclude = ("password",)
@@ -137,6 +136,7 @@ class EmployeeTypeSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(UserSerializer):
+    empType = serializers.SerializerMethodField()
     addresses = serializers.SerializerMethodField()
 
     def get_addresses(self, obj):
@@ -146,6 +146,9 @@ class EmployeeSerializer(UserSerializer):
             ]
         else:
             return []
+
+    def get_empType(self,obj):
+        return EmployeeTypeSerializer(obj.empType).data
 
     class Meta:
         model = Employee

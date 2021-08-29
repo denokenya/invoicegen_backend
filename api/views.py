@@ -19,8 +19,8 @@ from api.gen import (
     handleMask,
     recalculateIds,
 )
-from account.serializers import UserSerializer
-from account.models import Ids
+from account.serializers import UserSerializer, EmployeeSerializer
+from account.models import Ids, Employee
 from sales.models import Invoice, Payment, SaleOrder
 from sales.serializers import InvoiceSerializer, PaymentSerializer, SaleOrderSerializer
 
@@ -32,8 +32,10 @@ TODAY = date.today()
 
 
 def jwt_response_payload_handler(token, user=None, request=None):
-    userObj = UserSerializer(user, context={"context": request}).data
-
+    if user.is_superuser:
+        userObj = UserSerializer(user, context={"context": request}).data
+    else:
+        userObj = EmployeeSerializer(Employee.objects.get(id=user.id), context={"context": request}).data
     return {"token": token, "user": userObj}
 
 

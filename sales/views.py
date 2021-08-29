@@ -5,7 +5,7 @@ from account.models import *
 from account.serializers import CustomerSerializer
 
 paginator = PageNumberPagination()
-paginator.page_size = 15
+paginator.page_size = 50
 
 
 class PaymentView(APIView):
@@ -136,7 +136,10 @@ class SaleOrderViewSet(APIView):
             else:
                 return Response(status=404)
         else:
-            so = SaleOrder.objects.all().order_by("-createdOn")
+            so = paginator.paginate_queryset(
+                SaleOrder.objects.all().order_by("-createdOn"),
+                request,
+            )
             for s in so:
                 o = SaleOrderSerializer(s).data
                 o["products"] = SaleOrderProductLineSerializer(
@@ -146,7 +149,8 @@ class SaleOrderViewSet(APIView):
                     s.saleordertax_set.all(), many=True
                 ).data
                 out.append(o)
-            return Response(data=out, status=201)
+            pres = paginator.get_paginated_response(out)
+            return pres
 
     def post(self, request):
         out = {}
