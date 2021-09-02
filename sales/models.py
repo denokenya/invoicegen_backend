@@ -51,6 +51,7 @@ class SaleOrder(models.Model):
     shipToPanNo = models.CharField(max_length=50, blank=True)
     shipToGSTIN = models.CharField(max_length=50, blank=True)
 
+    siteDistance = models.FloatField(default=0.0, null=True, blank=True)
     paymentTerms = models.TextField(default="", max_length=1000)
     totalAmount = models.FloatField(default=0.0)
     expired = models.BooleanField(default=False)

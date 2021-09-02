@@ -12,6 +12,8 @@ class PaymentView(APIView):
     def get(self, request):
         data = request.query_params
         cid = data.get("id")
+        fromDate = data.get("from")
+        toDate = data.get("to")
         customerId = data.get("customerId")
         if cid:
             customer = Customer.objects.get(id=cid)
@@ -19,7 +21,10 @@ class PaymentView(APIView):
             customer = Customer.objects.get(customerId=customerId)
         out = []
         if customer:
-            customerpayments = CustomerPayment.objects.filter(customer=customer)
+            if fromDate and toDate:
+                customerpayments = CustomerPayment.objects.filter(customer=customer, paymentDate__range=[fromDate, toDate])
+            else:
+                customerpayments = CustomerPayment.objects.filter(customer=customer)
             if len(customerpayments) != 0:
                 customerpayments = customerpayments.order_by("payment__paymentDate")
                 payments = [cp.payment for cp in customerpayments]
@@ -122,6 +127,22 @@ class PaymentView(APIView):
 class SaleOrderViewSet(APIView):
     def get(self, request, id=None):
         out = []
+        fromDate = request.query_params.get("from")
+        toDate = request.query_params.get("to")
+        asoptions = request.query_params.get("asoptions")
+        if asoptions:
+            so = SaleOrder.objects.filter(completed=False).order_by("-createdOn")
+            for s in so:
+                o = SaleOrderSerializer(s).data
+                o["products"] = SaleOrderProductLineSerializer(
+                    s.saleorderproductline_set.all(), many=True
+                ).data
+                o["taxes"] = SaleOrderTaxSerializer(
+                    s.saleordertax_set.all(), many=True
+                ).data
+                out.append(o)
+            out = {"results": out}
+            return Response(data=out, status=201)
         if id:
             so = SaleOrder.objects.filter(id=id)
             if so.count() > 0:
@@ -136,10 +157,14 @@ class SaleOrderViewSet(APIView):
             else:
                 return Response(status=404)
         else:
-            so = paginator.paginate_queryset(
-                SaleOrder.objects.all().order_by("-createdOn"),
-                request,
-            )
+            if fromDate and toDate:
+                so = paginator.paginate_queryset(
+                    SaleOrder.objects.filter(createdOn__range=[fromDate, toDate]).order_by("-createdOn"), request
+                )
+            else:
+                so = paginator.paginate_queryset(
+                    SaleOrder.objects.all().order_by("-createdOn"), request
+                )
             for s in so:
                 o = SaleOrderSerializer(s).data
                 o["products"] = SaleOrderProductLineSerializer(
@@ -235,6 +260,8 @@ class InvoiceViewSet(APIView):
     def get(self, request):
         out = []
         id = request.query_params.get("invoiceId")
+        fromDate = request.query_params.get("from")
+        toDate = request.query_params.get("to")
         customerId = request.query_params.get("customerId")
         if id:
             inv = Invoice.objects.filter(invoiceId=id)
@@ -251,9 +278,14 @@ class InvoiceViewSet(APIView):
             serializer = InvoiceSerializer(result_page, many=True)
             return paginator.get_paginated_response(serializer.data)
         else:
-            result_page = paginator.paginate_queryset(
-                Invoice.objects.all().order_by("-createdOn"), request
-            )
+            if fromDate and toDate:
+                result_page = paginator.paginate_queryset(
+                    Invoice.objects.filter(createdOn__range=[fromDate, toDate]).order_by("-createdOn"), request
+                )
+            else:
+                result_page = paginator.paginate_queryset(
+                    Invoice.objects.all().order_by("-createdOn"), request
+                )
             serializer = InvoiceSerializer(result_page, many=True)
             return paginator.get_paginated_response(serializer.data)
 

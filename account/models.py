@@ -142,11 +142,12 @@ class Vehicle(models.Model):
     plant = models.ForeignKey(Plant, null=True, blank=True, on_delete=models.SET_NULL)
     number = models.CharField(max_length=50, unique=True, null=False, blank=False)
     vehicleCompany = models.CharField(default="", max_length=100, blank=True, null=True)
-    vehiclemodel = models.CharField(default="", max_length=100, blank=True, null=True)
-    vehicleRegistrationNo = models.CharField(
-        default="", max_length=100, blank=True, null=True
-    )
+    vehicleModel = models.CharField(default="", max_length=100, blank=True, null=True)
     loadingCapacity = models.FloatField(blank=True, null=True)
+    createdBy = models.EmailField(blank=True)
+    createdOn = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    modifiedBy = models.EmailField(blank=True)
+    modifiedOn = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def __str__(self):
         return self.number
