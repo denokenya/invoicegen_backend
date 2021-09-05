@@ -40,7 +40,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 
 class VendorViewSet(viewsets.ModelViewSet):
-
+    pagination_class = StandardResultsSetPagination
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
 
@@ -129,7 +129,6 @@ class IdsView(APIView):
             out = serializer.data
         else:
             out = serializer.errors
-        print(out)
         return Response(data=out, status=201)
 
     def delete(self, request, id):
@@ -227,12 +226,18 @@ class DriverAddressViewSet(viewsets.ModelViewSet):
     serializer_class = DriverAddressSerializer
 
 
+class VendorAddressViewSet(viewsets.ModelViewSet):
+    queryset = VendorAddress.objects.all()
+    serializer_class = VendorAddressSerializer
+
+
 class EmployeeAddressViewSet(viewsets.ModelViewSet):
     queryset = EmployeeAddress.objects.all()
     serializer_class = EmployeeAddressSerializer
 
 
 class VehicleViewSet(viewsets.ModelViewSet):
+    pagination_class = StandardResultsSetPagination
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
 

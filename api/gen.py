@@ -3,14 +3,18 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import datetime, date
 from django.db.models import Count
-from sales.models import Invoice, SaleOrder
+
+from production.models import *
+from production.serializers import *
+
 from account.models import *
-from production.models import Product
-from stock.models import RawMaterial
-from sales.serializers import InvoiceSerializer, SaleOrderSerializer
 from account.serializers import *
-from production.serializers import ProductSerializer
-from stock.serializers import RawMaterialSerializer
+
+from sales.models import *
+from sales.serializers import *
+
+from stock.models import *
+from stock.serializers import *
 
 
 def jprint(d):
@@ -132,34 +136,26 @@ def genWithName(name, id=None, update=False, reset=False):
     ids = []
     masks = Ids.objects.filter(name=name)
     if model.objects.count() == 0:
-        total_so = formatint(1, leading_zeros_count=5 if name == "INVOICE" else 4)
+        total_so = 0
     else:
         last = model.objects.last()
         if name == "EMPLOYEE":
             total_so = model.objects.count()
-            total_so = formatint(
-                (total_so if total_so == masks[0].count else masks[0].count) + 1,
-                leading_zeros_count=4,
-            )
-        elif last.createdOn and last.createdOn.month == month:
-            total_so = model.objects.values(KeyName[name]).last()[KeyName[name]][-4:]
-            total_so = formatint(int(total_so) + 1, leading_zeros_count=4)
+            total_so = (total_so if total_so == masks[0].count else masks[0].count)
+        elif name == "PRODUCT":
+            total_so = model.objects.count()
+        elif name == "INVOICE":
+            total_so = masks[0].count
         else:
-            if name == "PRODUCT":
-                total_so = formatint(model.objects.count() + 1, leading_zeros_count=4)
-            elif name == "INVOICE":
-                total_so = formatint(masks[0].count + 1, leading_zeros_count=5)
+            tml = len(model.objects.filter(createdOn__month=month)) # thismonthlength
+            if masks[0].count < tml:
+                for m in masks:
+                    m.count=tml
+                    m.save()
             else:
-                thismonthlength = len(model.objects.filter(createdOn__month=month))
-                total_so = formatint(
-                    (
-                        thismonthlength
-                        if thismonthlength == masks[0].count
-                        else masks[0].count
-                    )
-                    + 1,
-                    leading_zeros_count=4,
-                )
+                tml = masks[0].count
+            total_so = tml
+    total_so = formatint(total_so+1, 5 if name=="INVOICE" else 4)
     for mask in masks:
         filler = {
             "year": year,
@@ -181,12 +177,15 @@ def genWithName(name, id=None, update=False, reset=False):
 
 
 @receiver(post_save)
-def updateWithName(sender, instance, **kwargs):
-    name = sender.__name__
-    modelName = name.upper()
-    for e in Ids.objects.filter(name=modelName):
-        e.count = e.count + 1
-        e.save()
+def updateCodeForSaleOrder(sender, instance, **kwargs):
+    created = kwargs.get('created')
+    if created == True:
+        name = sender.__name__
+        modelName = name.upper()
+        idslist = Ids.objects.filter(name=modelName)
+        for e in idslist:
+            e.count = e.count + 1
+            e.save()
 
 
 def recalculateIds():

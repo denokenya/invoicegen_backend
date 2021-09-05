@@ -1,8 +1,10 @@
-from rest_framework.pagination import PageNumberPagination
-from api.views import *
-from sales.serializers import *
 from account.models import *
 from account.serializers import CustomerSerializer
+from api.views import *
+import rest_framework
+from rest_framework.pagination import PageNumberPagination
+
+from sales.serializers import *
 
 paginator = PageNumberPagination()
 paginator.page_size = 50
@@ -22,18 +24,17 @@ class PaymentView(APIView):
         out = []
         if customer:
             if fromDate and toDate:
-                customerpayments = CustomerPayment.objects.filter(customer=customer, paymentDate__range=[fromDate, toDate])
+                result_page = paginator.paginate_queryset(
+                    CustomerPayment.objects.filter(customer=customer, payment__paymentDate__range=[fromDate, toDate]).order_by('-createdOn'),
+                    request
+                )
             else:
-                customerpayments = CustomerPayment.objects.filter(customer=customer)
-            if len(customerpayments) != 0:
-                customerpayments = customerpayments.order_by("payment__paymentDate")
-                payments = [cp.payment for cp in customerpayments]
-                for e in PaymentSerializer(payments, many=True).data:
-                    e["customer"] = CustomerSerializer(customer).data
-                    out.append(e)
-                return Response(data=out, status=201)
-            else:
-                return Response(data=[], status=201)
+                result_page = paginator.paginate_queryset(
+                    CustomerPayment.objects.filter(customer=customer).order_by('-payment__createdOn'),
+                    request
+                )
+            serializer = CustomerPaymentSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
         else:
             return Response(data={"msg": "Customer Not Found"})
 
@@ -97,6 +98,20 @@ class PaymentView(APIView):
             if valid:
                 serializer.save()
                 out = serializer.data
+                cp = CustomerPayment.objects.filter(payment=payment)[0]
+                outstanding = Outstanding.objects.filter(customer=cp.customer)
+                if len(outstanding) != 0:
+                    outstanding = outstanding[0]
+                    outstanding.totalBusinessAmount = (
+                        outstanding.totalBusinessAmount or 0.0
+                    )
+                    newpayment = Payment(**serializer.data)
+                    print(newpayment)
+                    outstanding.totalBusinessAmount = outstanding.totalBusinessAmount - payment.amount
+                    outstanding.totalBusinessAmount = outstanding.totalBusinessAmount + newpayment.amount
+                    outstanding.dueAmount = outstanding.dueAmount + payment.amount
+                    outstanding.dueAmount = outstanding.dueAmount - newpayment.amount
+                    outstanding.save()
                 out["customer"] = CustomerSerializer(
                     CustomerPayment.objects.filter(payment=payment)[0].customer
                 ).data
@@ -271,10 +286,16 @@ class InvoiceViewSet(APIView):
             else:
                 return Response(status=404)
         elif customerId:
-            result_page = paginator.paginate_queryset(
-                Invoice.objects.filter(customerId=customerId).order_by("createdOn"),
-                request,
-            )
+            if fromDate and toDate:
+                result_page = paginator.paginate_queryset(
+                    Invoice.objects.filter(customerId=customerId, createdOn__range=[fromDate, toDate]).order_by("createdOn"),
+                    request,
+                )
+            else:
+                result_page = paginator.paginate_queryset(
+                    Invoice.objects.filter(customerId=customerId).order_by("createdOn"),
+                    request,
+                )
             serializer = InvoiceSerializer(result_page, many=True)
             return paginator.get_paginated_response(serializer.data)
         else:
@@ -414,14 +435,14 @@ class OutstandingViewSet(APIView):
                         invoice__paid=False
                     ).aggregate(Sum("invoice__invoiceAmountWithTax"))[
                         "invoice__invoiceAmountWithTax__sum"
-                    ]
+                    ] or 0
                     paidAmount = (
                         customer.customerpayment_set.all().aggregate(
                             Sum("payment__amount")
                         )["payment__amount__sum"]
                         or 0
                     )
-                    res.dueAmount = dueAmount - paidAmount
+                    res.dueAmount = dueAmount - paidAmount if dueAmount != 0 else dueAmount
                     res.totalBusinessAmount = paidAmount
                     res.save()
                 out = OutstandingSerializer(res).data

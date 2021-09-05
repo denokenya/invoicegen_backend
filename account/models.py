@@ -154,9 +154,9 @@ class Vehicle(models.Model):
 
 
 class Vendor(models.Model):
-    code = models.CharField(max_length=100, blank=False, null=False)
-    name = models.CharField(max_length=100, blank=False, null=False)
-
+    code = models.CharField(default="", max_length=100, blank=False, null=False)
+    name = models.CharField(default="", max_length=100, blank=False, null=False)
+    gstin = models.CharField(default="", max_length=15, blank=False, null=False)
 
 class VendorAddress(models.Model):
     vendor = models.ForeignKey(Vendor, null=True, blank=True, on_delete=models.SET_NULL)

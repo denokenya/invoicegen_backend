@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from sales.models import *
+from account.serializers import CustomerSerializer
 
 
 class SaleOrderSerializer(serializers.ModelSerializer):
@@ -68,6 +69,12 @@ class PaymentSerializer(serializers.ModelSerializer):
         model = Payment
         fields = "__all__"
 
+class CustomerPaymentSerializer(serializers.ModelSerializer):
+    customer = CustomerSerializer()
+    payment = PaymentSerializer()
+    class Meta:
+        model = CustomerPayment
+        fields = "__all__"
 
 class PlantSaleOrderSerializer(serializers.ModelSerializer):
     class Meta:

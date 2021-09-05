@@ -238,6 +238,10 @@ class DriverAddressSerializer(serializers.ModelSerializer):
         model = DriverAddress
         fields = "__all__"
 
+class VendorAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VendorAddress
+        fields = "__all__"
 
 class EmployeeAddressSerializer(serializers.ModelSerializer):
     class Meta:

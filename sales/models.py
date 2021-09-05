@@ -62,6 +62,10 @@ class SaleOrder(models.Model):
     completedOn = models.DateField(null=True, blank=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     createdBy = models.EmailField(blank=True)
+    
+    def __str__(self):
+        return self.saleOrderId
+    
 
 
 class SaleOrderProductLine(models.Model):
@@ -154,6 +158,10 @@ class Invoice(models.Model):
     cancelReason = models.CharField(max_length=1000, blank=True, default="")
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     createdBy = models.EmailField(blank=True)
+    
+    def __str__(self):
+        return self.invoiceId
+    
 
 
 class InvoiceProductLine(models.Model):
@@ -205,7 +213,7 @@ class Payment(models.Model):
         verbose_name_plural = "Payments"
 
     def __str__(self):
-        return f"{self.customer.name}|{self.mode}"
+        return f"{self.mode}|{self.amount}"
 
 
 class CustomerPayment(models.Model):
@@ -225,5 +233,4 @@ class Outstanding(models.Model):
         verbose_name_plural = "Outstandings"
 
     def __str__(self):
-        print(self.customer)
         return f"{self.customer} | {self.dueAmount}"

@@ -24,7 +24,7 @@ router.register(r"permissions", PermissionViewSet, basename="permission")
 router.register(r"stocks", StockViewSet, basename="stock")
 router.register(r"rawmaterials", RawMaterialViewSet, basename="rawmaterial")
 router.register(
-    r"rawmaterialentrys", RawMaterialEntryViewSet, basename="rawmaterialentry"
+    r"stockentrys", StockEntryViewSet, basename="stockentry"
 )
 router.register(r"employees", EmployeeViewSet, basename="employee")
 router.register(r"employeetypes", EmployeeTypeViewSet, basename="employeetype")
@@ -39,6 +39,7 @@ router.register(
     r"customersaddresses", CustomerAddressViewSet, basename="customersaddress"
 )
 router.register(r"vendors", VendorViewSet, basename="vendor")
+router.register(r"vendorsaddresses", VendorAddressViewSet, basename="vendoraddress")
 router.register(r"products", ProductViewSet, basename="product")
 router.register(r"addresses", AddressViewSet, basename="address")
 router.register(r"usernotes", UserNoteViewSet, basename="usernote")
