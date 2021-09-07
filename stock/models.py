@@ -1,13 +1,17 @@
+from django.dispatch import receiver
 from django.db import models
 from account.models import Plant
+from invoicegen_backend import settings
 import uuid
 from api.models import *
+from django.db.models.signals import post_save, post_delete
 
 
 class RawMaterial(models.Model):
     code = models.CharField(max_length=128, unique=True)
     name = models.CharField(max_length=200, blank=True, null=True)
     uom = models.CharField(max_length=20, default="MT")
+    createdOn = models.DateTimeField(default=today, null=True, blank=True)
 
 
 class Stock(models.Model):
@@ -36,4 +40,33 @@ class StockEntry(models.Model):
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     createdBy = models.CharField(default="", max_length=100)
 
+
+def onAddedStockMaterial(stockentry):
+    matCode = stockentry.materialCode
+    matQty = stockentry.materialQty
+    stock = Stock.objects.filter(material__code=matCode)[0]
+    stock.current = stock.current+matQty
+    stock.save()
+
+def onDeletedStockMaterial(stockentry):
+    matCode = stockentry.materialCode
+    matQty = stockentry.materialQty
+    stock = Stock.objects.filter(material__code=matCode)[0]
+    stock.current = stock.current-matQty
+    stock.save()
+
+@receiver(post_save, sender=StockEntry)
+def post_save_stockentry(sender, instance, created, *args, **kwargs):
+    if created:
+        try:
+            onAddedStockMaterial(instance)
+        except:
+            pass
+@receiver(post_delete, sender=StockEntry)
+def post_delete_stockentry(sender, instance, created, *args, **kwargs):
+    if created:
+        try:
+            onDeletedStockMaterial(instance)
+        except:
+            pass
 

@@ -5,6 +5,7 @@ class PurchaseOrderProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseOrderProduct
         fields = "__all__"
+
 class PurchaseOrderSerializer(serializers.ModelSerializer):
     materials = serializers.SerializerMethodField()
     def get__materials(self, obj):

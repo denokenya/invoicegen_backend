@@ -146,9 +146,11 @@ def genWithName(name, id=None, update=False, reset=False):
             total_so = model.objects.count()
         elif name == "INVOICE":
             total_so = masks[0].count
+        elif name=="VENDOR":
+            total_so = model.objects.count()
         else:
             tml = len(model.objects.filter(createdOn__month=month)) # thismonthlength
-            if masks[0].count < tml:
+            if masks[0].count != tml:
                 for m in masks:
                     m.count=tml
                     m.save()

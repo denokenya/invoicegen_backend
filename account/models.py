@@ -112,6 +112,7 @@ class EmployeeAddress(models.Model):
 
 
 class Driver(models.Model):
+    code = models.CharField(unique=True, max_length=100, null=True, blank=True)
     department = models.ForeignKey(
         Group, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -159,9 +160,9 @@ class Vendor(models.Model):
     gstin = models.CharField(default="", max_length=15, blank=False, null=False)
 
 class VendorAddress(models.Model):
-    vendor = models.ForeignKey(Vendor, null=True, blank=True, on_delete=models.SET_NULL)
+    vendor = models.ForeignKey(Vendor, null=True, blank=True, on_delete=models.CASCADE)
     address = models.ForeignKey(
-        Address, null=True, blank=True, on_delete=models.SET_NULL
+        Address, null=True, blank=True, on_delete=models.CASCADE
     )
 
 
@@ -207,6 +208,7 @@ class Tax(models.Model):
     fullname = models.CharField(max_length=50, blank=True)
     percent = models.FloatField(default=0.0)
     use = models.BooleanField(default=False)
+    usearea = models.CharField(default="SALE", max_length=50, null=True, blank=True)
     createdOn = models.DateTimeField(auto_now_add=True)
     updatedOn = models.DateTimeField(auto_now=True)
 

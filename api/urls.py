@@ -15,17 +15,13 @@ from rest_framework_jwt.views import (
 
 
 router = routers.DefaultRouter()
+#  ACCOUNT
 router.register(r"users", UserViewSet, basename="user")
 router.register(r"userconfigs", UserConfigViewSet, basename="userconfig")
 router.register(r"companys", CompanyViewSet, basename="company")
 router.register(r"plants", PlantViewSet, basename="plant")
 router.register(r"departments", DepartmentViewSet, basename="department")
 router.register(r"permissions", PermissionViewSet, basename="permission")
-router.register(r"stocks", StockViewSet, basename="stock")
-router.register(r"rawmaterials", RawMaterialViewSet, basename="rawmaterial")
-router.register(
-    r"stockentrys", StockEntryViewSet, basename="stockentry"
-)
 router.register(r"employees", EmployeeViewSet, basename="employee")
 router.register(r"employeetypes", EmployeeTypeViewSet, basename="employeetype")
 router.register(
@@ -40,7 +36,6 @@ router.register(
 )
 router.register(r"vendors", VendorViewSet, basename="vendor")
 router.register(r"vendorsaddresses", VendorAddressViewSet, basename="vendoraddress")
-router.register(r"products", ProductViewSet, basename="product")
 router.register(r"addresses", AddressViewSet, basename="address")
 router.register(r"usernotes", UserNoteViewSet, basename="usernote")
 router.register(r"taxes", TaxViewSet, basename="taxes")
@@ -52,6 +47,20 @@ router.register(
     r"termsandconditions", TermAndConditionViewSet, basename="termsandcondition"
 )
 router.register(r"plantsaleorders", PlantSaleOrderViewSet, basename="plantsaleorder")
+
+# PRODUCTION
+router.register(r"products", ProductViewSet, basename="product")
+
+# STOCK
+router.register(r"stocks", StockViewSet, basename="stock")
+router.register(r"rawmaterials", RawMaterialViewSet, basename="rawmaterial")
+router.register(
+    r"stockentrys", StockEntryViewSet, basename="stockentry"
+)
+
+#PURCHASE
+router.register(r"purchaseorders", PurchaseOrderViewSet, basename="purchaseorder")
+router.register(r"purchaseorderproducts", PurchaseOrderProductViewSet, basename="purchaseorderproduct")
 
 
 urlpatterns = [

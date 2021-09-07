@@ -33,6 +33,7 @@ class PurchaseOrder(models.Model):
     vendorPanNo = models.CharField(max_length=50, blank=True)
     vendorGSTIN = models.CharField(max_length=50, blank=True)
     
+    costcenter = models.CharField(default="", max_length=100, blank=True, null=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     createdBy = models.EmailField(blank=True)
     def __str__(self):
@@ -44,3 +45,9 @@ class PurchaseOrderProduct(models.Model):
     code = models.CharField(default="", max_length=50)
     name = models.CharField(default="", max_length=50)
     uom = models.CharField(default="", max_length=50)
+    qty = models.FloatField()
+
+class PurchaseOrderTax(models.Model):
+    po = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)
+    taxName = models.CharField(default="", max_length=100)
+    taxPercent = models.FloatField()

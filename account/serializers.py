@@ -182,14 +182,15 @@ class VendorSerializer(serializers.ModelSerializer):
 
     def get_addresses(self, obj):
         if obj.vendoraddress_set.count() > 0:
-            return AddressSerializer(obj.vendoraddress_set.all(), many=True).data
+            out = []
+            for e in obj.vendoraddress_set.all():
+                out.append(e.address)
+            return AddressSerializer(out, many=True).data
         else:
             return {}
-
     class Meta:
         model = Vendor
         fields = "__all__"
-
 
 class EmailTemplateSerializer(serializers.ModelSerializer):
     class Meta:

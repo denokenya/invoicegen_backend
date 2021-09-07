@@ -1,11 +1,6 @@
 from rest_framework import serializers
 from stock.models import *
 
-class StockSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Stock
-        fields = "__all__"
-
 class StockEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = StockEntry
@@ -14,4 +9,10 @@ class StockEntrySerializer(serializers.ModelSerializer):
 class RawMaterialSerializer(serializers.ModelSerializer):
     class Meta:
         model = RawMaterial
+        fields = "__all__"
+
+
+class StockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
         fields = "__all__"
