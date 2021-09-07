@@ -15,14 +15,14 @@ class PurchaseOrderSerializer(serializers.ModelSerializer):
     materials = serializers.SerializerMethodField()
     taxes = serializers.SerializerMethodField()
     
-    def get__materials(self, obj):
+    def get_materials(self, obj):
         if obj.purchaseorderproduct_set.count() > 0:
             return PurchaseOrderProductSerializer(
                 obj.purchaseorderproduct_set.all(), many=True
             ).data
         else:
             return []
-    def get__taxes(self, obj):
+    def get_taxes(self, obj):
         if obj.purchaseordertax_set.count() > 0:
             return PurchaseOrderTaxSerializer(
                 obj.purchaseordertax_set.all(), many=True

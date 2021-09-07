@@ -49,10 +49,11 @@ class PurchaseOrder(models.Model):
     
     poTotalAmount = models.FloatField()
     poTotalAmountWithTax = models.FloatField()
-    
+    paymentTerms = models.TextField(default="", max_length=1000)
+    tandc = models.TextField(default="", max_length=5000)
     costCenter = models.CharField(default="", max_length=100, blank=True, null=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
-    createdBy = models.EmailField(blank=True)
+    createdBy = models.CharField(blank=True)
     
     def __str__(self):
         return f'{self.poNumber}'
@@ -63,6 +64,7 @@ class PurchaseOrderProduct(models.Model):
     code = models.CharField(default="", max_length=50)
     name = models.CharField(default="", max_length=50)
     uom = models.CharField(default="", max_length=50)
+    rate = models.FloatField()
     qty = models.FloatField()
 
 class PurchaseOrderTax(models.Model):
