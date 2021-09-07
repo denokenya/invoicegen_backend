@@ -15,6 +15,8 @@ from sales.serializers import *
 
 from stock.models import *
 from stock.serializers import *
+from purchase.models import PurchaseOrder
+from purchase.serializers import PurchaseOrderSerializer
 
 
 def jprint(d):
@@ -43,6 +45,7 @@ ModelMapping = {
     "ADDRESS": Address,
     "PRODUCT": Product,
     "RAWMATERIAL": RawMaterial,
+    "PURCHASEORDER": PurchaseOrder,
     "EMPLOYEE": Employee,
     "DRIVER": Driver,
     "VENDOR": Vendor,
@@ -57,6 +60,7 @@ SerializerMap = {
     "EMPLOYEE": EmployeeSerializer,
     "DRIVER": DriverSerializer,
     "RAWMATERIAL": RawMaterialSerializer,
+    "PURCHASEORDER": PurchaseOrderSerializer,
     "VENDOR": VendorSerializer,
 }
 
@@ -70,6 +74,7 @@ KeyName = {
     "RAWMATERIAL": "code",
     "DRIVER": "code",
     "VENDOR": "code",
+    "PURCHASEORDER": "poNumber",
 }
 
 
@@ -147,6 +152,8 @@ def genWithName(name, id=None, update=False, reset=False):
         elif name == "INVOICE":
             total_so = masks[0].count
         elif name=="VENDOR":
+            total_so = model.objects.count()
+        elif name=="PURCHASEORDER":
             total_so = model.objects.count()
         else:
             tml = len(model.objects.filter(createdOn__month=month)) # thismonthlength

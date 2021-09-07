@@ -3,8 +3,7 @@ from api.models import *
 # Create your models here.
 
 class PurchaseOrder(models.Model):
-    poNumber = models.CharField(null=False, blank=False, max_length=50)
-    
+    poNumber = models.CharField(null=False, blank=False, max_length=100, unique=True)
     # company
     orgName = models.CharField(max_length=100, blank=True)
     orgAddrsLine1 = models.TextField(max_length=200, blank=True)
@@ -32,6 +31,22 @@ class PurchaseOrder(models.Model):
     vendorEmail = models.CharField(max_length=50, blank=True)
     vendorPanNo = models.CharField(max_length=50, blank=True)
     vendorGSTIN = models.CharField(max_length=50, blank=True)
+    
+    # shipping
+    shipToName = models.CharField(max_length=50, blank=True)
+    shipToAddrsLine1 = models.CharField(max_length=50, blank=True)
+    shipToAddrsLine2 = models.CharField(max_length=50, blank=True)
+    shipToAddrsLine3 = models.CharField(max_length=50, blank=True)
+    shipToState = models.CharField(max_length=50, blank=True)
+    shipToCity = models.CharField(max_length=50, blank=True)
+    shipToPostalCode = models.CharField(max_length=8, blank=True)
+    shipToPhone = models.CharField(max_length=50, blank=True)
+    shipToEmail = models.CharField(max_length=50, blank=True)
+    shipToPanNo = models.CharField(max_length=50, blank=True)
+    shipToGSTIN = models.CharField(max_length=50, blank=True)
+    
+    poTotalAmount = models.FloatField()
+    poTotalAmountWithTax = models.FloatField()
     
     costcenter = models.CharField(default="", max_length=100, blank=True, null=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
