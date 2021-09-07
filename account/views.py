@@ -40,7 +40,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
 
 
 class VendorViewSet(viewsets.ModelViewSet):
-    pagination_class = StandardResultsSetPagination
+
     queryset = Vendor.objects.all()
     serializer_class = VendorSerializer
 

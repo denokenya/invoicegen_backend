@@ -50,7 +50,7 @@ class PurchaseOrder(models.Model):
     poTotalAmount = models.FloatField()
     poTotalAmountWithTax = models.FloatField()
     
-    costcenter = models.CharField(default="", max_length=100, blank=True, null=True)
+    costCenter = models.CharField(default="", max_length=100, blank=True, null=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     createdBy = models.EmailField(blank=True)
     
