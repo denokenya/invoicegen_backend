@@ -15,3 +15,7 @@ class PurchaseOrderViewSet(viewsets.ModelViewSet):
 class PurchaseOrderProductViewSet(viewsets.ModelViewSet):
     queryset = PurchaseOrderProduct.objects.all()
     serializer_class = PurchaseOrderProductSerializer
+
+class PurchaseOrderTaxViewSet(viewsets.ModelViewSet):
+    queryset = PurchaseOrderTax.objects.all()
+    serializer_class = PurchaseOrderTaxSerializer

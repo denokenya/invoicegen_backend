@@ -61,6 +61,7 @@ router.register(
 #PURCHASE
 router.register(r"purchaseorders", PurchaseOrderViewSet, basename="purchaseorder")
 router.register(r"purchaseorderproducts", PurchaseOrderProductViewSet, basename="purchaseorderproduct")
+router.register(r"purchaseordertaxes", PurchaseOrderTaxViewSet, basename="purchaseordertax")
 
 
 urlpatterns = [
