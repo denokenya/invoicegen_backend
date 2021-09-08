@@ -83,8 +83,6 @@ urlpatterns = [
     # payments
     path("payments/", PaymentView.as_view()),
     path("payments/<uuid:id>", PaymentView.as_view()),
-    # email api
-    path("sendmail/", sendMail),
     # chart api
     path("getgraphdata/", graphData),
     # last fives

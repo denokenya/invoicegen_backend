@@ -11,7 +11,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action, api_view
 import time, json
-from utils.gmail_api import GMAIL, create_message_with_attachment, send_message
 from api.gen import (
     formatint,
     genWithName,
@@ -49,27 +48,27 @@ def incrementCountFor(model):
         ids.save()
 
 
-@api_view(["POST"])
-def sendMail(request):
-    file = request.FILES["file"]
-    tfn = file.name
-    msg = None
-    to = request.data["to"]
-    subject = request.data["subject"]
-    body = request.data["body"]
-    sentmsg = {}
-    with open(tfn, "wb") as f:
-        f.write(file.file.getbuffer())
-        msg = create_message_with_attachment(
-            to,
-            subject,
-            body,
-            tfn,
-        )
+# @api_view(["POST"])
+# def sendMail(request):
+#     file = request.FILES["file"]
+#     tfn = file.name
+#     msg = None
+#     to = request.data["to"]
+#     subject = request.data["subject"]
+#     body = request.data["body"]
+#     sentmsg = {}
+#     with open(tfn, "wb") as f:
+#         f.write(file.file.getbuffer())
+#         msg = create_message_with_attachment(
+#             to,
+#             subject,
+#             body,
+#             tfn,
+#         )
 
-        sentmsg = send_message("me", msg)
-    os.remove(tfn)
-    return Response(data=sentmsg, status=201)
+#         sentmsg = send_message("me", msg)
+#     os.remove(tfn)
+#     return Response(data=sentmsg, status=201)
 
 
 @api_view(["GET"])
