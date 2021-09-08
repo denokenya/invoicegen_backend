@@ -47,13 +47,14 @@ class PurchaseOrder(models.Model):
     shipToPanNo = models.CharField(max_length=50, blank=True)
     shipToGSTIN = models.CharField(max_length=50, blank=True)
     
+    completed = models.BooleanField(default=False, null=True, blank=True)
     poTotalAmount = models.FloatField()
     poTotalAmountWithTax = models.FloatField()
     paymentTerms = models.TextField(default="", max_length=1000)
     tandc = models.TextField(default="", max_length=5000)
     costCenter = models.CharField(default="", max_length=100, blank=True, null=True)
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
-    createdBy = models.CharField(blank=True)
+    createdBy = models.CharField(blank=True, max_length=100)
     
     def __str__(self):
         return f'{self.poNumber}'
@@ -66,6 +67,8 @@ class PurchaseOrderProduct(models.Model):
     uom = models.CharField(default="", max_length=50)
     rate = models.FloatField()
     qty = models.FloatField()
+    deliveredQty = models.FloatField(default=0.0, null=True, blank=True)
+    completed = models.BooleanField(default=False, null=True, blank=True)
 
 class PurchaseOrderTax(models.Model):
     po = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE)

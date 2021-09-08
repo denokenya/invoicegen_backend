@@ -9,8 +9,18 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 class PurchaseOrderViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
-    queryset = PurchaseOrder.objects.all()
+    # queryset = PurchaseOrder.objects.all()
     serializer_class = PurchaseOrderSerializer
+    def get_queryset(self):
+        out = None
+        data = self.request.query_params
+        dateFrom = data.get("from")
+        dateTo = data.get("to")
+        if dateFrom and dateTo:
+            out = PurchaseOrder.objects.filter(createdOn__date__range=[dateFrom, dateTo])
+        else:
+            out = PurchaseOrder.objects.all()
+        return out
 
 class PurchaseOrderProductViewSet(viewsets.ModelViewSet):
     queryset = PurchaseOrderProduct.objects.all()

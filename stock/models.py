@@ -5,6 +5,7 @@ from invoicegen_backend import settings
 import uuid
 from api.models import *
 from django.db.models.signals import post_save, post_delete
+from purchase.models import PurchaseOrder
 
 
 class RawMaterial(models.Model):
@@ -18,8 +19,8 @@ class Stock(models.Model):
     id = models.UUIDField(default=uuid.uuid4, primary_key=True, editable=False)
     plant = models.ForeignKey(Plant, null=True, blank=True, on_delete=models.CASCADE)
     material = models.ForeignKey(RawMaterial, on_delete=models.CASCADE)
-    capacity = models.IntegerField()
-    current = models.IntegerField()
+    capacity = models.FloatField()
+    current = models.FloatField()
     createdOn = models.DateTimeField(default=today, null=True, blank=True)
     modifiedOn = models.DateTimeField(auto_now=True, blank=True)
 
@@ -44,15 +45,49 @@ class StockEntry(models.Model):
 def onAddedStockMaterial(stockentry):
     matCode = stockentry.materialCode
     matQty = stockentry.materialQty
+    matMoisture = stockentry.moisture
+    print(matMoisture)
+    print(matMoisture/100)
+    print(matQty)
+    po = PurchaseOrder.objects.filter(poNumber=stockentry.purchaseOrder)[0]
+    pomat = po.purchaseorderproduct_set.filter(code=matCode)[0]
+    pomat.deliveredQty = pomat.deliveredQty+matQty
+    if pomat.deliveredQty==pomat.qty:
+        pomat.completed = True
+    pomat.save()
+    allCompleted = True
+    for m in po.purchaseorderproduct_set.all():
+        if m.completed==False:
+            allCompleted = False
+    if allCompleted==True:
+        po.completed = True
+        po.save()
     stock = Stock.objects.filter(material__code=matCode)[0]
-    stock.current = stock.current+matQty
+    cmq = matQty - ((matMoisture/100)*matQty)
+    print(cmq)
+    stock.current = stock.current+cmq
     stock.save()
 
 def onDeletedStockMaterial(stockentry):
     matCode = stockentry.materialCode
     matQty = stockentry.materialQty
+    matMoisture = stockentry.moisture
+    po = PurchaseOrder.objects.filter(poNumber=stockentry.purchaseOrder)[0]
+    pomat = po.purchaseorderproduct_set.filter(code=matCode)[0]
+    pomat.deliveredQty = pomat.deliveredQty - matQty
+    if pomat.deliveredQty==pomat.qty:
+        pomat.completed = False
+    pomat.save()
+    allCompleted = True
+    for m in po.purchaseorderproduct_set.all():
+        if m.completed==False:
+            allCompleted = False
+    if allCompleted==True:
+        po.completed = True
+        po.save()
     stock = Stock.objects.filter(material__code=matCode)[0]
-    stock.current = stock.current-matQty
+    cmq = matQty - ((matMoisture/100)*matQty)
+    stock.current = stock.current-cmq
     stock.save()
 
 @receiver(post_save, sender=StockEntry)
@@ -63,10 +98,6 @@ def post_save_stockentry(sender, instance, created, *args, **kwargs):
         except:
             pass
 @receiver(post_delete, sender=StockEntry)
-def post_delete_stockentry(sender, instance, created, *args, **kwargs):
-    if created:
-        try:
-            onDeletedStockMaterial(instance)
-        except:
-            pass
+def post_delete_stockentry(sender, instance, *args, **kwargs):
+    onDeletedStockMaterial(instance)
 
